@@ -1,0 +1,123 @@
+{
+ "sofa": {
+  "yaw": 0,
+  "size_m": [
+   1.82,
+   0.75,
+   0.65
+  ],
+  "box_err_px": 0,
+  "status": "ok",
+  "note": "camera fix: now seen level like the reference; fits its box exactly"
+ },
+ "armchair": {
+  "yaw": 270,
+  "size_m": [
+   0.69,
+   0.78,
+   0.65
+  ],
+  "box_err_px": 20,
+  "status": "ok",
+  "note": "camera fix: side view matches; box within 20 px (cushions)"
+ },
+ "coffee-table": {
+  "yaw": 0,
+  "size_m": [
+   1.02,
+   0.68,
+   0.42
+  ],
+  "box_err_px": 46,
+  "status": "issue",
+  "note": "angle now matches (thin top strip); box 46 px off at the base \u2014 base is a cross/fin, reference has two slabs (needs new model)"
+ },
+ "table-decor": {
+  "yaw": 180,
+  "size_m": [
+   0.49,
+   0.23,
+   0.22
+  ],
+  "box_err_px": 0,
+  "status": "ok",
+  "note": "on the table, arrangement matches"
+ },
+ "bench": {
+  "yaw": 75,
+  "size_m": [
+   0.46,
+   0.99,
+   0.38
+  ],
+  "box_err_px": 22,
+  "status": "ok",
+  "note": "now ~1 m long like the reference; legs thinner than reference"
+ },
+ "side-table": {
+  "yaw": 0,
+  "size_m": [
+   0.32,
+   0.32,
+   0.46
+  ],
+  "box_err_px": 6,
+  "status": "ok",
+  "note": "position matches"
+ },
+ "floor-lamp": {
+  "yaw": 0,
+  "size_m": [
+   0.8,
+   0.54,
+   1.9
+  ],
+  "box_err_px": 98,
+  "status": "issue",
+  "note": "base hidden by the armchair (bottom error expected); arm reaches wider than the reference"
+ },
+ "wall-sconce": {
+  "yaw": 0,
+  "size_m": [
+   0.28,
+   0.22,
+   0.48
+  ],
+  "box_err_px": 6,
+  "status": "ok",
+  "note": "position matches"
+ },
+ "wall-art": {
+  "yaw": 0,
+  "size_m": [
+   1.57,
+   0.03,
+   1.16
+  ],
+  "box_err_px": 2,
+  "status": "ok",
+  "note": "position matches"
+ },
+ "plant": {
+  "yaw": 0,
+  "size_m": [
+   0.37,
+   0.31,
+   0.37
+  ],
+  "box_err_px": 2,
+  "status": "ok",
+  "note": "position matches (on a stand behind the armchair)"
+ },
+ "ceiling-fan": {
+  "yaw": 0,
+  "size_m": [
+   0.8,
+   0.7,
+   0.35
+  ],
+  "box_err_px": 37,
+  "status": "issue",
+  "note": "canopy/downrod 37 px taller than the reference"
+ }
+}

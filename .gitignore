@@ -17,3 +17,8 @@ app/.vite/
 
 # OS
 .DS_Store
+
+# Scene Forge
+forge-app/server.log
+mods/*/.claude-plugin/types/
+.mcp.json

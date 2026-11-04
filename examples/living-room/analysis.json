@@ -1,0 +1,245 @@
+{
+ "reference": "reference.png",
+ "size": [
+  1672,
+  1194
+ ],
+ "objects": [
+  {
+   "name": "sofa",
+   "source": "meshy",
+   "bbox": [
+    540,
+    785,
+    1100,
+    1002
+   ],
+   "dims_m": [
+    2.1,
+    0.9,
+    0.82
+   ],
+   "desc": "modern 3-seat sofa, light taupe boucle/woven fabric, thin square arms, slim black metal legs, with 5 throw cushions (striped beige, plain beige, grey patterned, black/white striped)"
+  },
+  {
+   "name": "armchair",
+   "source": "meshy",
+   "bbox": [
+    1105,
+    815,
+    1405,
+    1085
+   ],
+   "dims_m": [
+    0.95,
+    0.85,
+    0.8
+   ],
+   "desc": "boxy modern armchair, taupe woven fabric, thin black metal legs, blue and striped cushions"
+  },
+  {
+   "name": "coffee-table",
+   "source": "meshy",
+   "bbox": [
+    637,
+    905,
+    996,
+    1055
+   ],
+   "dims_m": [
+    1.1,
+    0.75,
+    0.42
+   ],
+   "desc": "square light oak wood coffee table, thick top, two offset slab pedestal base"
+  },
+  {
+   "name": "table-decor",
+   "source": "meshy",
+   "bbox": [
+    718,
+    835,
+    905,
+    928
+   ],
+   "dims_m": [
+    0.55,
+    0.35,
+    0.3
+   ],
+   "desc": "coffee table styling: white curved arch sculpture, white candle in glass on wooden tray, small wooden bowl",
+   "mount": "floor",
+   "contact_v": 928,
+   "on": "coffee-table",
+   "support_z": 0.42
+  },
+  {
+   "name": "bench",
+   "source": "meshy",
+   "bbox": [
+    318,
+    900,
+    540,
+    1095
+   ],
+   "dims_m": [
+    1.2,
+    0.45,
+    0.48
+   ],
+   "desc": "tufted upholstered bench, taupe fabric with button-quilted squares, dark charcoal wood splayed legs"
+  },
+  {
+   "name": "side-table",
+   "source": "meshy",
+   "bbox": [
+    427,
+    845,
+    536,
+    992
+   ],
+   "dims_m": [
+    0.45,
+    0.45,
+    0.55
+   ],
+   "desc": "small round side table, dark grey top, black base, with stacked books, reed diffuser and small vase"
+  },
+  {
+   "name": "floor-lamp",
+   "source": "meshy",
+   "bbox": [
+    1118,
+    458,
+    1262,
+    842
+   ],
+   "dims_m": [
+    0.55,
+    0.45,
+    1.75
+   ],
+   "desc": "arc-arm floor lamp, black thin metal stand, beige linen drum shade, small black reading arm",
+   "contact_v": 955
+  },
+  {
+   "name": "wall-sconce",
+   "source": "meshy",
+   "bbox": [
+    533,
+    560,
+    612,
+    680
+   ],
+   "dims_m": [
+    0.22,
+    0.18,
+    0.5
+   ],
+   "desc": "wall sconce, vertical black/bronze rod with two frosted glass globes and one clear smoked glass sphere",
+   "mount": "wall",
+   "plane": 3.0,
+   "instances": [
+    [
+     533,
+     560,
+     612,
+     680
+    ],
+    [
+     1110,
+     560,
+     1160,
+     680
+    ]
+   ]
+  },
+  {
+   "name": "wall-art",
+   "source": "meshy",
+   "bbox": [
+    655,
+    476,
+    1035,
+    760
+   ],
+   "dims_m": [
+    1.5,
+    0.05,
+    1.1
+   ],
+   "desc": "set of six square beige plaster relief wall panels in a 3x2 grid, abstract geometric arches, circles and steps",
+   "mount": "wall",
+   "plane": 3.0
+  },
+  {
+   "name": "plant",
+   "source": "meshy",
+   "bbox": [
+    1124,
+    742,
+    1232,
+    840
+   ],
+   "dims_m": [
+    0.45,
+    0.45,
+    0.45
+   ],
+   "desc": "small leafy green plant in a low pot",
+   "contact_v": 935
+  },
+  {
+   "name": "ceiling-fan",
+   "source": "meshy",
+   "bbox": [
+    748,
+    55,
+    1038,
+    237
+   ],
+   "dims_m": [
+    1.3,
+    1.3,
+    0.45
+   ],
+   "desc": "white 3-blade modern ceiling fan with downrod",
+   "mount": "ceiling",
+   "plane": 2.88
+  },
+  {
+   "name": "rug",
+   "source": "procedural",
+   "bbox": [
+    265,
+    965,
+    1332,
+    1122
+   ],
+   "desc": "jute/wool rug, oatmeal center, border of thin beige and cream stripes"
+  },
+  {
+   "name": "room",
+   "source": "procedural",
+   "desc": "cream walls with classic picture-frame molding panels, crown molding, recessed downlights, beige stone tile floor, oak door with dark frame on right wall, built-in white wardrobes on left"
+  }
+ ],
+ "lighting": {
+  "mood": "warm evening interior, ~2700-3000K",
+  "sources": [
+   "2 wall sconces with emissive globes",
+   "floor lamp drum shade glow",
+   "5 recessed ceiling downlights",
+   "soft warm ambient bounce"
+  ],
+  "notes": "strong warm grazing light on wall art from sconces; soft shadows; slight bloom on bulbs"
+ },
+ "ignore": [
+  [
+   1255,
+   62,
+   1605,
+   152
+  ]
+ ]
+}

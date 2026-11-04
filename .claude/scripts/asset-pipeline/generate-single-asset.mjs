@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdir, rename } from "node:fs/promises";
+import { copyFile, readdir, rename } from "node:fs/promises";
 import path from "node:path";
 import {
   DEFAULT_HUNYUAN_ENABLE_PBR,
@@ -24,6 +24,17 @@ import {
   MESHY_3D_PROVIDER,
   runMeshy3D
 } from "./meshy-3d.mjs";
+import {
+  DEFAULT_TRIPO_ENABLE_PBR,
+  DEFAULT_TRIPO_FACE_LIMIT,
+  DEFAULT_TRIPO_GEOMETRY_QUALITY,
+  DEFAULT_TRIPO_MODEL,
+  DEFAULT_TRIPO_TEXTURE,
+  DEFAULT_TRIPO_TEXTURE_QUALITY,
+  TRIPO_3D_PROVIDER,
+  resumeTripo3D,
+  runTripo3D
+} from "./tripo-3d.mjs";
 import { runImageEdit } from "./image-edit.mjs";
 import {
   downloadRemoteFiles,
@@ -50,8 +61,11 @@ import {
 const IMAGE_EXTENSIONS = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".webp"]);
 const MODEL_EXTENSIONS = new Set([".blend", ".fbx", ".glb", ".obj", ".stl", ".usdz"]);
 const GENERATED_OBJECT_FIELDS = new Set(["status"]);
-export const DEFAULT_3D_PROVIDER = HUNYUAN_3D_PROVIDER;
+export const DEFAULT_3D_PROVIDER = TRIPO_3D_PROVIDER;
 const MODEL_PROVIDER_ALIASES = new Map([
+  ["tripo", TRIPO_3D_PROVIDER],
+  ["tripo3d", TRIPO_3D_PROVIDER],
+  ["tripo-3d", TRIPO_3D_PROVIDER],
   ["meshy", MESHY_3D_PROVIDER],
   ["fal-ai/meshy/v6/image-to-3d", MESHY_3D_PROVIDER],
   ["hunyuan", HUNYUAN_3D_PROVIDER],
@@ -119,7 +133,7 @@ function resolve3DProvider(value = DEFAULT_3D_PROVIDER) {
   const normalized = String(value || DEFAULT_3D_PROVIDER).trim().toLowerCase();
   const provider = MODEL_PROVIDER_ALIASES.get(normalized);
   if (!provider) {
-    throw new Error(`Unsupported 3D provider "${value}". Use one of: meshy, hunyuan.`);
+    throw new Error(`Unsupported 3D provider "${value}". Use one of: tripo, meshy, hunyuan.`);
   }
   return provider;
 }
@@ -128,6 +142,7 @@ function modelRequestPrefix(request, fallbackProvider) {
   if (request?.data?.provider_slug) return request.data.provider_slug;
   if (request?.data?.endpoint?.includes("hunyuan")) return HUNYUAN_3D_PROVIDER;
   if (request?.data?.endpoint?.includes("meshy")) return MESHY_3D_PROVIDER;
+  if (request?.data?.endpoint?.includes("tripo")) return TRIPO_3D_PROVIDER;
   return fallbackProvider || DEFAULT_3D_PROVIDER;
 }
 
@@ -138,6 +153,13 @@ async function run3DProvider(options) {
   }
   if (provider === MESHY_3D_PROVIDER) {
     return runMeshy3D(options);
+  }
+  if (provider === TRIPO_3D_PROVIDER) {
+    return runTripo3D({
+      ...options,
+      enablePbr: options.tripoEnablePbr,
+      faceLimit: options.tripoFaceLimit
+    });
   }
   throw new Error(`Unsupported 3D provider "${provider}".`);
 }
@@ -373,12 +395,24 @@ export async function generateSingleObject(options) {
     meshyEnableAnimation = DEFAULT_MESHY_ENABLE_ANIMATION,
     meshyEnableRigging = DEFAULT_MESHY_ENABLE_RIGGING,
     meshyEnablePbr = DEFAULT_MESHY_ENABLE_PBR,
+    tripoModel = DEFAULT_TRIPO_MODEL,
+    tripoFaceLimit = DEFAULT_TRIPO_FACE_LIMIT,
+    tripoTexture = DEFAULT_TRIPO_TEXTURE,
+    tripoEnablePbr = DEFAULT_TRIPO_ENABLE_PBR,
+    tripoTextureQuality = DEFAULT_TRIPO_TEXTURE_QUALITY,
+    tripoGeometryQuality = DEFAULT_TRIPO_GEOMETRY_QUALITY,
+    tripoSmartLowPoly,
+    tripoQuad,
     referenceOnly = false,
-    regenerateReference = false
+    regenerateReference = false,
+    useImageAsReference = false
   } = options;
 
   if (!world) throw new Error("world is required.");
   if (!objectId && !directImage) throw new Error("objectId or directImage is required.");
+  if (useImageAsReference && !directImage) {
+    throw new Error("--use-image-as-reference requires --image <path>.");
+  }
 
   const resolved = await resolveObject({
     world,
@@ -435,6 +469,15 @@ export async function generateSingleObject(options) {
   let modelFiles = existingModel ? [existingModel.path] : [];
 
   try {
+    if (useImageAsReference && (!generatedImagePath || regenerateReference)) {
+      // The direct image is already a clean, isolated object render (e.g. made in Google Flow): skip image edit.
+      const extension = path.extname(directImage).toLowerCase() || ".png";
+      generatedImagePath = artifactPath(resolved.objectDir, requestIndex, object.id, extension);
+      if (path.resolve(directImage) !== path.resolve(generatedImagePath)) {
+        await copyFile(directImage, generatedImagePath);
+      }
+    }
+
     if (!generatedImagePath) {
       const imageRequest =
         activeImageRequest && activeImageRequest.index === requestIndex
@@ -511,7 +554,9 @@ export async function generateSingleObject(options) {
             ? usableModelRequest
             : undefined;
       modelMetadataPath = modelRequest?.path || requestPath(resolved.objectDir, requestIndex, object.id, "model");
-      const modelGeneration = modelRequest
+      const modelGeneration = modelRequest && modelRequestPrefix(modelRequest, provider) === TRIPO_3D_PROVIDER
+        ? await resumeTripo3D(modelRequest, resolved.objectDir)
+        : modelRequest
         ? await resumeFalRequest(
             modelRequest,
             modelRequestPrefix(modelRequest, provider),
@@ -538,7 +583,15 @@ export async function generateSingleObject(options) {
             animationActionId: meshyAnimationActionId,
             enableSafetyChecker: meshyEnableSafetyChecker,
             enableAnimation: meshyEnableAnimation,
-            enableRigging: meshyEnableRigging
+            enableRigging: meshyEnableRigging,
+            tripoModel,
+            tripoFaceLimit,
+            tripoEnablePbr,
+            texture: tripoTexture,
+            textureQuality: tripoTextureQuality,
+            geometryQuality: tripoGeometryQuality,
+            smartLowPoly: tripoSmartLowPoly,
+            quad: tripoQuad
           });
 
       const normalizedModelFiles = await normalizeModelFiles(
@@ -592,7 +645,7 @@ async function main() {
 
   if (!world || (!objectId && !directImage)) {
     throw new Error(
-      "Usage: node generate-single-asset.mjs --world <world-name> (--object-id <object-id> | --image <path>) --image-edit-prompt <prompt> [--object-name <name>] [--description <text>] [--provider hunyuan|meshy] [--regenerate] [--regenerate-reference] [--reference-only] [--face-count <40000-1500000>] [--generate-type Normal|LowPoly|Geometry] [--polygon-type triangle|quadrilateral] [--target-polycount 30000] [--enable-pbr true|false]"
+      "Usage: node generate-single-asset.mjs --world <world-name> (--object-id <object-id> | --image <path>) --image-edit-prompt <prompt> [--object-name <name>] [--description <text>] [--provider tripo|hunyuan|meshy] [--regenerate] [--regenerate-reference] [--reference-only] [--use-image-as-reference] [--face-count <40000-1500000>] [--generate-type Normal|LowPoly|Geometry] [--polygon-type triangle|quadrilateral] [--target-polycount 30000] [--enable-pbr true|false] [--tripo-model v3.1-20260211] [--face-limit <n>|auto] [--texture-quality fast|standard|detailed|extreme] [--geometry-quality standard|detailed] [--smart-low-poly true|false] [--quad true|false]"
     );
   }
 
@@ -606,6 +659,7 @@ async function main() {
     regenerate: Boolean(flags.regenerate),
     regenerateReference: Boolean(flags["regenerate-reference"]),
     referenceOnly: Boolean(flags["reference-only"]),
+    useImageAsReference: Boolean(flags["use-image-as-reference"]),
     imageEditProvider: one(flags, "image-edit-provider"),
     modelProvider: one(flags, "provider") || one(flags, "3d-provider") || one(flags, "model-provider"),
     hunyuanFaceCount: one(flags, "face-count", DEFAULT_HUNYUAN_FACE_COUNT),
@@ -622,13 +676,21 @@ async function main() {
     meshyEnableSafetyChecker: one(flags, "enable-safety-checker", DEFAULT_MESHY_ENABLE_SAFETY_CHECKER),
     meshyEnableAnimation: one(flags, "enable-animation", DEFAULT_MESHY_ENABLE_ANIMATION),
     meshyEnableRigging: one(flags, "enable-rigging", DEFAULT_MESHY_ENABLE_RIGGING),
-    meshyEnablePbr: one(flags, "enable-pbr", DEFAULT_MESHY_ENABLE_PBR)
+    meshyEnablePbr: one(flags, "enable-pbr", DEFAULT_MESHY_ENABLE_PBR),
+    tripoModel: one(flags, "tripo-model", DEFAULT_TRIPO_MODEL),
+    tripoFaceLimit: one(flags, "face-limit", DEFAULT_TRIPO_FACE_LIMIT),
+    tripoTexture: one(flags, "texture", DEFAULT_TRIPO_TEXTURE),
+    tripoEnablePbr: one(flags, "enable-pbr", DEFAULT_TRIPO_ENABLE_PBR),
+    tripoTextureQuality: one(flags, "texture-quality", DEFAULT_TRIPO_TEXTURE_QUALITY),
+    tripoGeometryQuality: one(flags, "geometry-quality", DEFAULT_TRIPO_GEOMETRY_QUALITY),
+    tripoSmartLowPoly: one(flags, "smart-low-poly"),
+    tripoQuad: one(flags, "quad")
   });
 
   console.log(JSON.stringify(result, null, 2));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(error.message);
     process.exit(1);

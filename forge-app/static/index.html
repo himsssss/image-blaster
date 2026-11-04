@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scene Forge</title>
+<script>/* apply the saved theme before first paint (no flash) */
+try { document.documentElement.dataset.theme = localStorage.getItem("forge.theme") || "cyber"; } catch (e) { document.documentElement.dataset.theme = "cyber"; }</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&family=Inter:wght@400;500;600&family=EB+Garamond:wght@400;500&family=Lato:wght@400;700&display=swap">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/theme-paper.css">
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1 class="glitch" data-text="Scene//Forge">Scene<b>//</b>Forge</h1>
+    <span class="sub cursor">image → objects → views → 3d → blender</span>
+  </div>
+  <span class="field"><select id="project" aria-label="Project"></select></span>
+  <button id="libBtn" class="ghost">Library</button>
+  <button id="newBtn" class="ghost">New</button>
+  <button id="settingsBtn" class="ghost" aria-haspopup="dialog" aria-controls="settings">Settings</button>
+  <span id="claudeState" class="pill" role="status" aria-live="polite">Claude</span>
+</header>
+
+<div class="layout">
+  <nav id="steps" aria-label="Pipeline steps">
+    <button data-step="objects"><span>Objects</span></button>
+    <button data-step="views"><span>Views</span></button>
+    <button data-step="models"><span>3D Models</span></button>
+    <button data-step="blender"><span>Blender</span></button>
+    <button data-step="check"><span>Check</span></button>
+    <button data-step="final"><span>Final</span></button>
+  </nav>
+
+  <main>
+    <!-- new project -->
+    <section id="s-new" class="step">
+      <div class="bar"><h2>New project</h2></div>
+      <p class="muted">Upload the scene image you want rebuilt in Blender.</p>
+      <label class="drop chamfer" id="drop">
+        <input type="file" id="file" accept="image/*" hidden>
+        <span class="cursor">Drop an image or click to choose</span>
+        <img id="preview" alt="">
+      </label>
+      <div class="row"><span class="field"><input id="slug" placeholder="project-name (a-z, 0-9, -)" aria-label="Project name"></span><button id="create" class="primary">Create project</button></div>
+    </section>
+
+    <!-- library: projects + every 3D model -->
+    <section id="s-library" class="step">
+      <div class="bar">
+        <h2>Library</h2>
+        <div class="tabs" role="tablist" aria-label="Library">
+          <button role="tab" data-lib="projects" class="ghost">Projects</button>
+          <button role="tab" data-lib="models" class="ghost">3D models</button>
+        </div>
+      </div>
+      <div id="libProjects">
+        <p class="muted">Every project on this machine. Save the current project to keep a named snapshot (analysis, placement, scores, renders; optionally the .blend) you can come back to.</p>
+        <div class="card savebox">
+          <h4>Save current project <span id="saveSlug" class="pill"></span></h4>
+          <div class="row"><span class="field"><input id="snapName" placeholder="snapshot name, e.g. walls matched" aria-label="Snapshot name"></span></div>
+          <div class="row"><span class="field"><input id="snapNote" placeholder="note (optional)" aria-label="Snapshot note"></span></div>
+          <label class="check"><input type="checkbox" id="snapBlend"> <span>Include the .blend file <span id="blendSize" class="muted-inline"></span></span></label>
+          <div class="row"><button id="snapSave" class="primary">Save to library</button></div>
+        </div>
+        <div id="projCats" class="chips" role="group" aria-label="Filter projects by category"></div>
+        <div id="projGrid" class="grid lib-grid"></div>
+      </div>
+      <div id="libModels" class="hidden">
+        <p class="muted">Every 3D model generated in any project — current ones and older versions that were replaced. Use one in the open project from here or from a model card in 3D Models.</p>
+        <div class="row">
+          <span class="field"><input id="libSearch" placeholder="search: sofa, chair…" aria-label="Search models"></span>
+          <span class="field" style="flex:0 0 200px"><select id="libFilter" aria-label="Show"><option value="all">all models</option><option value="current">in use</option><option value="old">older versions</option></select></span>
+        </div>
+        <div id="libCats" class="chips" role="group" aria-label="Filter models by category"></div>
+        <div id="libGrid" class="grid lib-grid"></div>
+      </div>
+    </section>
+
+    <!-- 1 objects -->
+    <section id="s-objects" class="step">
+      <div class="bar">
+        <h2>Objects</h2>
+        <button data-job="analyze" class="primary">Ask Claude to analyze</button>
+        <button id="saveAn" class="ghost">Save edits</button>
+        <button id="crops" class="ghost">Make crops</button>
+      </div>
+      <p class="muted">Claude splits the scene into objects. Select one to edit it; drag on the image to redraw its box.</p>
+      <div class="split">
+        <div class="stage holo"><div class="frame"><img id="ref" alt="Reference scene"><canvas id="boxes" aria-label="Object boxes"></canvas></div></div>
+        <div class="side">
+          <div class="row"><span class="field"><input id="newName" placeholder="new object name" aria-label="New object name"></span><button id="addObj" class="ghost">Add</button></div>
+          <ul id="objList" class="list"></ul>
+          <div id="objEdit" class="card hidden">
+            <label>Name <input data-f="name"></label>
+            <label>Source <select data-f="source"><option>meshy</option><option>procedural</option></select></label>
+            <label>Mount <select data-f="mount"><option value="">floor</option><option>wall</option><option>ceiling</option></select></label>
+            <label>Description <textarea data-f="desc" rows="2"></textarea></label>
+            <label>Structure — legs, base, seams, parts <textarea data-f="structure" rows="3"></textarea></label>
+            <label>Colour <input data-f="colour" placeholder="warm beige #a8927c"></label>
+            <div class="row"><button id="delObj" class="danger">Delete object</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 views -->
+    <section id="s-views" class="step">
+      <div class="bar">
+        <h2>Multi-angle views</h2>
+        <span class="field" style="flex:0 0 auto"><select id="angles" aria-label="Angles"><option value="4">4 angles · 2×2 sheet</option><option value="8">8 angles + top · 3×3</option></select></span>
+        <button id="viewsAll" class="primary">Generate all · Higgsfield</button>
+      </div>
+      <p class="muted">Nano Banana 2.1 via Higgsfield: a front view, then one turnaround sheet split into angles. ~5 credits per object.</p>
+      <div id="viewGrid" class="grid"></div>
+    </section>
+
+    <!-- 3 models -->
+    <section id="s-models" class="step">
+      <div class="bar">
+        <h2>3D models</h2>
+        <span id="meshyKey" class="pill"></span>
+        <button id="meshyAll" class="primary">Generate all · Meshy</button>
+      </div>
+      <p class="muted">Meshy multi-image-to-3D runs straight from this app — ~30 Meshy credits and 3–6 min per object, 8 at a time. Click a model to replace it, generate it again, upload your own or restore an older version.</p>
+      <div id="modelGrid" class="grid"></div>
+    </section>
+
+    <!-- 4 blender -->
+    <section id="s-blender" class="step">
+      <div class="bar">
+        <h2>Blender</h2>
+        <button data-job="place" class="primary">Place + pose</button>
+        <button data-job="lightfit">Fit lighting</button>
+        <button id="verifyBtn" class="secondary">Verify loop</button>
+        <span class="field" style="flex:0 0 auto"><input id="iters" type="number" min="1" max="20" value="6" aria-label="Iterations" title="iterations"></span>
+        <button data-job="final" class="ghost">Final render</button>
+      </div>
+      <p class="muted">Claude drives your open Blender through the Blender MCP: camera solve, placement, pose search, light fit, render-compare-fix loop.</p>
+      <div id="scoreTable"></div>
+      <div id="loopStrip" class="strip"></div>
+      <img id="fitPreview" class="wide hidden" alt="Light fit preview">
+    </section>
+
+    <!-- 5 check -->
+    <section id="s-check" class="step">
+      <div class="bar">
+        <h2>Per-object check</h2>
+        <span class="field" style="flex:0 0 auto"><select id="renderSrc" aria-label="Render to compare"></select></span>
+        <button data-job="custom" data-custom="qc" class="primary">Re-check all</button>
+      </div>
+      <p class="muted">Reference crop next to the same region of the latest render. Flag anything off and Claude fixes that object.</p>
+      <div id="checkGrid" class="grid wide-cards"></div>
+      <img id="qcSheet" class="wide hidden" alt="QC sheet">
+    </section>
+
+    <!-- 6 final project -->
+    <section id="s-final" class="step">
+      <div class="bar">
+        <h2>Final project</h2>
+        <button data-job="final" class="ghost">Render final</button>
+        <button id="finalSave" class="ghost">Save to library</button>
+      </div>
+      <p class="muted">The finished scene: open the Blender project, grab the renders, and see what still differs from the reference.</p>
+      <div class="final-top">
+        <figure class="final-hero"><img id="finalHero" alt="Final render"><figcaption id="finalHeroCap"></figcaption></figure>
+        <div class="card blend-card">
+          <h4>Blender project <span id="blendPill" class="pill"></span></h4>
+          <div id="blendInfo" class="small meta"></div>
+          <div class="blend-actions">
+            <button id="blendOpen" class="primary">Open in Blender</button>
+            <button id="blendReveal" class="ghost">Show in Finder</button>
+            <a id="blendDl" class="btnlike" download>Download .blend</a>
+          </div>
+          <p class="small muted-block">Opening loads the file in your Blender. If Blender has unsaved changes it asks first.</p>
+          <div id="snapBlends"></div>
+        </div>
+      </div>
+      <div id="finalScore"></div>
+      <h3 class="md-h">Outputs</h3>
+      <div id="finalOuts" class="grid lib-grid"></div>
+      <h3 class="md-h">Still different from the reference</h3>
+      <div id="finalProblems" class="problems"></div>
+    </section>
+  </main>
+
+  <aside id="jobs" class="terminal" data-title="job_feed // claude">
+    <div class="prompt cursor">tail -f queue</div>
+    <p class="small" style="color:var(--muted-foreground);margin:0 0 12px">Steps marked Claude run in your Claude Code session — keep it open.</p>
+    <ul id="jobList" class="list" aria-live="polite"></ul>
+  </aside>
+</div>
+<dialog id="settings" aria-labelledby="settingsTitle">
+  <form method="dialog">
+    <div class="dlg-head"><h3 id="settingsTitle">Settings</h3><button value="close" class="ghost" aria-label="Close settings">Close</button></div>
+    <fieldset class="themes">
+      <legend>Appearance</legend>
+      <label class="theme-opt"><input type="radio" name="theme" value="cyber">
+        <span class="sw sw-cyber" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><b>Neon terminal</b><small>Cyberpunk / glitch — void black, neon glow, scanlines</small></span></label>
+      <label class="theme-opt"><input type="radio" name="theme" value="paper">
+        <span class="sw sw-paper" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><b>Warm paper</b><small>Editorial IDE chrome — off-white paper, ink, serif prose</small></span></label>
+    </fieldset>
+  </form>
+</dialog>
+<dialog id="modelDlg" aria-labelledby="mdTitle">
+  <div class="dlg-body">
+    <div class="dlg-head"><h3 id="mdTitle">Model</h3><button id="mdClose" class="ghost" aria-label="Close">Close</button></div>
+    <div class="md-top">
+      <div id="mdViewer" class="md-viewer"></div>
+      <div class="md-actions">
+        <div id="mdInfo" class="small muted-block"></div>
+        <button id="mdRegen" class="primary">Generate again · Meshy</button>
+        <label class="btnlike ghost-btn" for="mdUpload">Upload .glb<input type="file" id="mdUpload" accept=".glb,model/gltf-binary" hidden></label>
+        <button id="mdPlace" class="secondary">Update in Blender</button>
+        <p class="small muted-block">Replacing keeps the old model as a version — nothing is deleted. "Update in Blender" asks Claude to swap it into the scene at the same spot.</p>
+      </div>
+    </div>
+    <h3 class="md-h">Older versions</h3>
+    <div id="mdVersions" class="grid mini-grid"></div>
+    <h3 class="md-h">Replace from library</h3>
+    <div class="row"><span class="field"><input id="mdSearch" placeholder="search library…" aria-label="Search library"></span></div>
+    <div id="mdCats" class="chips" role="group" aria-label="Filter library by category"></div>
+    <div id="mdLib" class="grid mini-grid"></div>
+  </div>
+</dialog>
+<script src="/static/app.js"></script>
+</body>
+</html>

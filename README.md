@@ -37,7 +37,8 @@ IMAGE-BLASTER uses a few generation models:
 - `marble-1.1` - World Labs Marble model creates the explorable environment.
 - `nano-banana` - default image edit preference for source cleanup, clean plates, and object reference images.
 - `gpt-image-2` - alternate image edit provider when the edit skill is asked to prefer it.
-- `hunyuan-3d` - Hunyuan 3D model creates 3D object models through FAL.
+- `tripo` - Tripo 3D (API v3, `v3.1-20260211`) creates 3D object models. Default provider; needs `TRIPO_API_KEY`.
+- `hunyuan-3d` - Hunyuan 3D model creates 3D object models through FAL (`--provider hunyuan`).
 - `elevenlabs-sfx` - ElevenLabs sound effects model creates ambient and object-specific sounds.
 
 3D model creation supports these Hunyuan parameters:
@@ -46,6 +47,19 @@ IMAGE-BLASTER uses a few generation models:
 - `--enable-pbr true|false`: enable PBR material generation. Defaults to `true`.
 - `--generate-type Normal|LowPoly|Geometry`: `Normal` creates a textured model, `LowPoly` applies polygon reduction, and `Geometry` creates a white geometry-only model. Defaults to `Normal`.
 - `--polygon-type triangle|quadrilateral`: polygon type for `LowPoly`. Defaults to `triangle`.
+
+### Scene Forge (rebuild a photo exactly in Blender)
+
+Skills `scene-forge*`, scripts in `.claude/scripts/scene-forge/`, and a local web app in `forge-app/`:
+photo -> objects -> multi-angle views (Nano Banana via Higgsfield) -> 3D models (Meshy multi-image-to-3D)
+-> camera solve, placement, room and lighting in Blender (Blender MCP) -> render/compare/fix loop.
+
+- Needs Blender with the Blender MCP add-on, the Higgsfield connector, and `MESHY_API_KEY` in `.env`.
+- Start the app: `python3 forge-app/server.py --port 8770`, then open http://localhost:8770 (or run
+  `/scene-forge-app` in Claude Code, which also starts the job watcher).
+- `mods/scene-forge` is a Claude Code mod that adds Scene Forge bookmarks above the chat; load it by adding
+  its absolute path to `CLAUDE_CODE_PLUGIN_DIRS` in the `env` block of `~/.claude/settings.json`.
+- `examples/living-room/` holds the small output files of one run.
 
 ### Examples
 

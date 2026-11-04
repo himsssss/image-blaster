@@ -1,0 +1,242 @@
+/* ==========================================================================
+   Theme: Warm-paper IDE chrome  (html[data-theme="paper"])
+   Off-white paper, near-black ink, 0px window-chrome cards, pill CTAs.
+   Orange (#F54E00) is rationed to links; gold (#C08532) to the single "ok" chip.
+   Serif (EB Garamond) only for prose; UI type in the grotesk (Inter stands in for CursorGothic).
+   Overrides tokens and switches off every cyber-only signature.
+   ========================================================================== */
+html[data-theme="paper"] {
+  --background: #F7F7F4;
+  --foreground: #26251E;
+  --card: #F7F7F4;
+  --surface: #F2F1ED;
+  --muted: #E6E5E0;
+  --muted-foreground: #7A786F;
+  --accent: #F54E00;
+  --accent-gold: #C08532;
+  --border: #E6E5E0;
+  --input: #FBFBF9;
+  --ring: #26251E;
+  --destructive: #F54E00;
+  --ink-06: rgba(38, 37, 30, 0.06);
+  --ink-10: rgba(38, 37, 30, 0.10);
+  --hover-ink: #3B3A33;
+
+  --font-ui: "Inter", "CursorGothic", system-ui, sans-serif;
+  --font-prose: "EB Garamond", Georgia, serif;
+  --font-mono: "JetBrains Mono", "berkeleyMono", ui-monospace, monospace;
+  --font-caption: "Lato", "Inter", sans-serif;
+
+  --chrome-shadow: rgba(0, 0, 0, 0.14) 0 28px 70px 0, rgba(0, 0, 0, 0.1) 0 14px 32px 0, rgba(38, 37, 30, 0.1) 0 0 0 1px;
+  --float-shadow: rgba(0, 0, 0, 0.06) 0 0 16px 0, rgba(0, 0, 0, 0.04) 0 0 8px 0, rgba(38, 37, 30, 0.08) 0 0 0 1px;
+  --ease: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --header-h: 52px;
+  color-scheme: light;
+}
+
+/* ---------- base: flat paper, no CRT ---------- */
+html[data-theme="paper"] body {
+  background: var(--background); color: var(--foreground);
+  font: 400 14px/1.5 var(--font-ui); letter-spacing: 0.1px;
+}
+html[data-theme="paper"] body::before,
+html[data-theme="paper"] body::after { display: none; }
+html[data-theme="paper"] ::selection { background: #26251E; color: #F7F7F4; }
+html[data-theme="paper"] a { color: var(--accent); text-decoration: none; }
+html[data-theme="paper"] a:hover { text-decoration: underline; }
+html[data-theme="paper"] :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; box-shadow: 0 0 0 4px #EBEAE5; }
+
+/* cyber signatures off */
+html[data-theme="paper"] .chamfer,
+html[data-theme="paper"] .chamfer-sm,
+html[data-theme="paper"] button,
+html[data-theme="paper"] input,
+html[data-theme="paper"] textarea,
+html[data-theme="paper"] select,
+html[data-theme="paper"] .card,
+html[data-theme="paper"] #objList li,
+html[data-theme="paper"] aside#jobs { clip-path: none; }
+html[data-theme="paper"] .glitch { text-shadow: none; animation: none; }
+html[data-theme="paper"] .glitch::before, html[data-theme="paper"] .glitch::after { display: none; }
+html[data-theme="paper"] .cursor::after { display: none; }
+html[data-theme="paper"] h2::before, html[data-theme="paper"] p.muted::before,
+html[data-theme="paper"] figcaption::before, html[data-theme="paper"] .field::before,
+html[data-theme="paper"] nav#steps::before { content: none; }
+html[data-theme="paper"] .field > input, html[data-theme="paper"] .field > select { padding-left: 12px; }
+
+/* ---------- header (52px, paper, hairline) ---------- */
+html[data-theme="paper"] header { background: rgba(247, 247, 244, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+html[data-theme="paper"] header::after { display: none; }
+html[data-theme="paper"] .brand h1 { font: 500 17px/1 var(--font-ui); letter-spacing: -0.2px; text-transform: none; color: var(--foreground); filter: none; }
+html[data-theme="paper"] .brand h1 b { color: var(--muted-foreground); font-weight: 400; }
+html[data-theme="paper"] .sub { font: 13px var(--font-caption); letter-spacing: 0; text-transform: none; }
+
+/* ---------- step rail ---------- */
+html[data-theme="paper"] nav#steps { background: transparent; border-right: 1px solid var(--border); padding-top: 24px; }
+html[data-theme="paper"] nav#steps button {
+  font: 400 14px var(--font-ui); letter-spacing: 0.1px; text-transform: none; color: var(--muted-foreground);
+  min-height: 34px; padding: 6px 12px 6px 14px; border-radius: 0;
+}
+html[data-theme="paper"] nav#steps button::before { font: 12px var(--font-mono); color: #B5B3AA; }
+html[data-theme="paper"] nav#steps button:hover { background: var(--ink-06); color: var(--foreground); }
+html[data-theme="paper"] nav#steps button:hover::before { color: var(--foreground); }
+html[data-theme="paper"] nav#steps button.active { background: var(--surface); color: var(--foreground); text-shadow: none; }
+html[data-theme="paper"] nav#steps button.active::before { color: var(--foreground); }
+html[data-theme="paper"] nav#steps button.active::after { background: var(--foreground); box-shadow: none; }
+html[data-theme="paper"] nav#steps button.done span::after { content: "  ✓"; font: 12px var(--font-ui); color: var(--muted-foreground); letter-spacing: 0; }
+
+/* ---------- type ---------- */
+html[data-theme="paper"] h2 { font: 400 26px/1.25 var(--font-ui); letter-spacing: -0.3px; text-transform: none; }
+html[data-theme="paper"] h3 { font: 500 14px var(--font-ui); letter-spacing: 0.1px; text-transform: none; color: var(--foreground); }
+html[data-theme="paper"] .muted { font: 17px/1.35 var(--font-prose); color: #55534B; margin: 6px 0 24px; }
+html[data-theme="paper"] .small { font: 13px var(--font-caption); }
+html[data-theme="paper"] label { font: 12.5px var(--font-ui); letter-spacing: 0; text-transform: none; color: var(--muted-foreground); }
+html[data-theme="paper"] figcaption { font: 13px var(--font-caption); letter-spacing: 0; text-transform: none; color: var(--muted-foreground); }
+
+/* ---------- buttons: glass default, ink pill primary ---------- */
+html[data-theme="paper"] button {
+  min-height: 35px; padding: 6px 12px; border-radius: 0; border: 0;
+  font: 400 14px var(--font-ui); letter-spacing: 0.1px; text-transform: none;
+  color: var(--foreground); background: var(--ink-06); box-shadow: none; transition: all var(--ease);
+}
+html[data-theme="paper"] button:hover { background: var(--ink-10); color: var(--foreground); box-shadow: none; }
+html[data-theme="paper"] button:disabled { background: var(--ink-06); color: var(--muted-foreground); opacity: 0.6; }
+html[data-theme="paper"] button.primary {
+  min-height: 38px; padding: 8px 19px; border-radius: 9999px; border: 1px solid #26251E;
+  background: #26251E; color: #F7F7F4; font-weight: 400;
+}
+html[data-theme="paper"] button.primary:hover { background: var(--hover-ink); border-color: var(--hover-ink); filter: none; animation: none; text-shadow: none; }
+html[data-theme="paper"] button.secondary { border-radius: 9999px; border: 1px solid rgba(38, 37, 30, 0.35); background: transparent; color: var(--foreground); }
+html[data-theme="paper"] button.secondary:hover { border-color: #26251E; background: var(--ink-06); }
+html[data-theme="paper"] button.ghost { background: transparent; border: 0; color: var(--foreground); }
+html[data-theme="paper"] button.ghost:hover { background: var(--ink-06); color: var(--foreground); border: 0; }
+html[data-theme="paper"] button.danger { background: transparent; color: var(--accent); border: 0; }
+html[data-theme="paper"] button.danger:hover { background: var(--ink-06); color: var(--accent); }
+html[data-theme="paper"] .cardbar button { min-height: 30px; font-size: 13px; }
+
+/* ---------- inputs ---------- */
+html[data-theme="paper"] input, html[data-theme="paper"] textarea, html[data-theme="paper"] select {
+  border-radius: 4px; border: 1px solid #DAD9D3; background: var(--input); color: var(--foreground);
+  font: 14px var(--font-ui); letter-spacing: 0.1px; min-height: 35px;
+}
+html[data-theme="paper"] textarea { font: 15px/1.4 var(--font-prose); }
+html[data-theme="paper"] input:focus, html[data-theme="paper"] textarea:focus, html[data-theme="paper"] select:focus { border-color: #26251E; box-shadow: 0 0 0 2px #EBEAE5; }
+html[data-theme="paper"] select {
+  /* the input rule above resets the background shorthand, so restate the chevron's size/position */
+  background-color: var(--input);
+  background-image: linear-gradient(45deg, transparent 50%, #26251E 50%), linear-gradient(135deg, #26251E 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px; background-repeat: no-repeat;
+}
+
+/* ---------- chips: neutral ink, gold "ok", orange-text "issue" ---------- */
+html[data-theme="paper"] .pill {
+  font: 12px var(--font-ui); letter-spacing: 0; text-transform: none; padding: 2px 8px; border-radius: 2px;
+  border: 0; background: var(--ink-06); color: var(--foreground);
+}
+html[data-theme="paper"] .pill::before { width: 5px; height: 5px; border-radius: 50%; box-shadow: none; }
+html[data-theme="paper"] .pill.ok { background: var(--accent-gold); color: #fff; border-radius: 4px; }
+html[data-theme="paper"] .pill.bad { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px rgba(245, 78, 0, 0.35); }
+html[data-theme="paper"] .pill.run { color: var(--foreground); background: linear-gradient(90deg, var(--ink-06) 0%, var(--ink-10) 50%, var(--ink-06) 100%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+
+/* ---------- window-chrome cards ---------- */
+html[data-theme="paper"] .card { background: var(--card); border: 0; border-radius: 0; box-shadow: var(--float-shadow); padding: 16px; }
+html[data-theme="paper"] .grid .card:hover { transform: none; border: 0; box-shadow: var(--chrome-shadow); }
+html[data-theme="paper"] .card h4 { font: 500 15px var(--font-ui); letter-spacing: -0.1px; text-transform: none; }
+html[data-theme="paper"] .grid { gap: 20px; }
+html[data-theme="paper"] #viewGrid .card:nth-child(3n+2), html[data-theme="paper"] #modelGrid .card:nth-child(3n+2) { margin-top: 0; }
+
+/* stage = big window-chrome screenshot */
+html[data-theme="paper"] .holo { background: var(--card); border: 0; box-shadow: var(--chrome-shadow); backdrop-filter: none; padding: 40px 14px 14px; }
+html[data-theme="paper"] .holo::after { display: none; }
+html[data-theme="paper"] .holo::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 28px; border-bottom: 1px solid var(--border);
+  background: radial-gradient(circle at 16px 14px, #E0443E 5px, transparent 5.5px), radial-gradient(circle at 34px 14px, #DEA123 5px, transparent 5.5px),
+    radial-gradient(circle at 52px 14px, #1AAB29 5px, transparent 5.5px), var(--surface);
+}
+
+/* drop zone */
+html[data-theme="paper"] .drop { border: 1px dashed rgba(38, 37, 30, 0.25); background: var(--surface); font: 17px var(--font-prose); letter-spacing: 0; text-transform: none; color: #55534B; }
+html[data-theme="paper"] .drop:hover { border-color: #26251E; color: var(--foreground); box-shadow: none; }
+
+/* objects list */
+html[data-theme="paper"] #objList li { background: transparent; border: 0; border-bottom: 1px solid var(--border); font: 14px var(--font-ui); min-height: 36px; }
+html[data-theme="paper"] #objList li:hover { background: var(--ink-06); }
+html[data-theme="paper"] #objList li.sel { background: var(--surface); box-shadow: inset 2px 0 0 #26251E; color: var(--foreground); }
+html[data-theme="paper"] #objList li .tag { font: 12px var(--font-caption); letter-spacing: 0; text-transform: none; }
+html[data-theme="paper"] #objList li .warn { font: 12px var(--font-ui); letter-spacing: 0; text-transform: none; color: var(--accent); }
+html[data-theme="paper"] #objList li .swatch { box-shadow: none; border-radius: 50%; width: 8px; height: 8px; }
+
+/* thumbs, viewers, progress */
+html[data-theme="paper"] .thumbs img { background: #fff; border: 1px solid var(--border); }
+html[data-theme="paper"] .thumbs img:hover { border-color: #26251E; box-shadow: none; }
+html[data-theme="paper"] .thumbs img.crop { background: #26251E; border-color: #26251E; }
+html[data-theme="paper"] model-viewer { background: var(--surface); background-image: none; border: 0; }
+html[data-theme="paper"] .progress { height: 4px; background: var(--muted); border: 0; border-radius: 9999px; }
+html[data-theme="paper"] .progress > div { background: #26251E; box-shadow: none; animation: none; border-radius: 9999px; }
+
+/* tables, strips, pairs */
+html[data-theme="paper"] th { font: 12.5px var(--font-ui); letter-spacing: 0; text-transform: none; color: var(--muted-foreground); border-bottom: 1px solid var(--border); }
+html[data-theme="paper"] td { font: 13px var(--font-mono); }
+html[data-theme="paper"] tr:last-child td { color: var(--foreground); text-shadow: none; font-weight: 600; }
+html[data-theme="paper"] tr:hover td { background: var(--ink-06); }
+html[data-theme="paper"] .strip figure { background: var(--card); border: 0; box-shadow: var(--float-shadow); }
+html[data-theme="paper"] img.wide, html[data-theme="paper"] .pair img { border: 1px solid var(--border); }
+html[data-theme="paper"] .pair figure:first-child img, html[data-theme="paper"] .pair figure:last-child img { border-color: var(--border); }
+
+/* ---------- jobs: floating CLI window ---------- */
+html[data-theme="paper"] aside#jobs { background: var(--card); border: 0; box-shadow: var(--chrome-shadow); }
+html[data-theme="paper"] .terminal::before {
+  font: 12px var(--font-ui); letter-spacing: 0; text-transform: none; color: var(--muted-foreground); border-bottom: 1px solid var(--border);
+  background: radial-gradient(circle at 14px 13px, #E0443E 4px, transparent 4.5px), radial-gradient(circle at 28px 13px, #DEA123 4px, transparent 4.5px),
+    radial-gradient(circle at 42px 13px, #1AAB29 4px, transparent 4.5px), var(--surface);
+}
+html[data-theme="paper"] #jobs .prompt { font: 13px var(--font-mono); color: var(--foreground); }
+html[data-theme="paper"] #jobs .prompt::before { color: var(--muted-foreground); }
+html[data-theme="paper"] #jobList li { background: transparent; border-left: 2px solid var(--border); font: 13px var(--font-mono); }
+html[data-theme="paper"] #jobList li:has(.st-running) { border-left-color: #26251E; box-shadow: none; }
+html[data-theme="paper"] #jobList li:has(.st-failed) { border-left-color: var(--accent); }
+html[data-theme="paper"] #jobList li:has(.st-done) { border-left-color: var(--accent-gold); }
+html[data-theme="paper"] #jobList .jt { font: 500 13px var(--font-ui); text-transform: none; letter-spacing: 0; }
+html[data-theme="paper"] #jobList .jt span:first-child::before { content: ""; }
+html[data-theme="paper"] #jobList .notes { font: 12.5px var(--font-mono); color: #55534B; }
+html[data-theme="paper"] #jobList .notes div::before { color: var(--muted-foreground); }
+html[data-theme="paper"] .st-pending { color: var(--accent-gold); } html[data-theme="paper"] .st-running { color: var(--foreground); }
+html[data-theme="paper"] .st-done { color: var(--muted-foreground); }
+html[data-theme="paper"] .st-failed, html[data-theme="paper"] .st-cancelled { color: var(--accent); }
+
+html[data-theme="paper"] * { scrollbar-color: #D6D5CF transparent; }
+html[data-theme="paper"] ::-webkit-scrollbar-thumb { background: #D6D5CF; }
+html[data-theme="paper"] ::-webkit-scrollbar-thumb:hover { background: #26251E; }
+
+/* motion: short + functional */
+html[data-theme="paper"] .step.active { animation: fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { html[data-theme="paper"] .pill.run { animation: none; } }
+
+/* settings dialog in paper */
+html[data-theme="paper"] dialog#settings { border: 0; box-shadow: var(--chrome-shadow); background: var(--card); }
+html[data-theme="paper"] dialog#settings::backdrop { background: rgba(38, 37, 30, 0.25); }
+html[data-theme="paper"] .themes legend { font: 12.5px var(--font-ui); letter-spacing: 0; text-transform: none; }
+html[data-theme="paper"] .theme-opt { border: 1px solid var(--border); font: 14px var(--font-ui); }
+html[data-theme="paper"] .theme-opt:hover { border-color: #26251E; }
+html[data-theme="paper"] .theme-opt:has(input:checked) { border-color: #26251E; box-shadow: inset 0 0 0 1px #26251E; }
+html[data-theme="paper"] .theme-opt input { accent-color: #26251E; }
+html[data-theme="paper"] .theme-opt b { font-weight: 500; }
+html[data-theme="paper"] .theme-opt small { font: 14px var(--font-prose); }
+
+/* library + model editor in paper */
+html[data-theme="paper"] header button.active, html[data-theme="paper"] .tabs button.active { border-color: #26251E; color: #26251E; box-shadow: inset 0 0 0 1px #26251E; }
+html[data-theme="paper"] .proj.current { box-shadow: var(--float-shadow), inset 0 0 0 1px #26251E; }
+html[data-theme="paper"] .proj summary { color: var(--foreground); font: 13px var(--font-ui); }
+html[data-theme="paper"] .lib-thumb { background: var(--surface); border: 0; }
+html[data-theme="paper"] .btnlike { font: 14px var(--font-ui); letter-spacing: 0; text-transform: none; border-radius: 4px; }
+html[data-theme="paper"] .btnlike:hover { border-color: #26251E; color: #26251E; }
+html[data-theme="paper"] dialog#modelDlg { border: 0; box-shadow: var(--chrome-shadow); background: var(--card); }
+html[data-theme="paper"] dialog#modelDlg::backdrop { background: rgba(38, 37, 30, 0.25); }
+html[data-theme="paper"] label.check { font: 14px var(--font-ui); }
+html[data-theme="paper"] label.check input { accent-color: #26251E; }
+html[data-theme="paper"] .chip { border-radius: 999px; font: 13px var(--font-ui); letter-spacing: 0; text-transform: none; }
+html[data-theme="paper"] .chip.active { background: #26251E; color: #F7F7F4; border-color: #26251E; box-shadow: none; }
+html[data-theme="paper"] .catsel { font: 13px var(--font-ui); }

@@ -1,7 +1,7 @@
 ---
 name: image-blast-3d
 description: Generate one specified atomic 3D object. Use when the user names exactly one object instance to make, or provides one image plus the object name/description.
-argument-hint: [world-name] [object-id/name or image path + object description] [--image-edit-prompt prompt] [--provider meshy|hunyuan] [--regenerate] [--regenerate-reference] [--target-polycount N] [--face-count N] [--generate-type Normal|LowPoly|Geometry] [--polygon-type triangle|quadrilateral] [--enable-pbr true|false]
+argument-hint: [world-name] [object-id/name or image path + object description] [--image-edit-prompt prompt] [--provider tripo|hunyuan|meshy] [--use-image-as-reference] [--regenerate] [--regenerate-reference] [--target-polycount N] [--face-count N] [--generate-type Normal|LowPoly|Geometry] [--polygon-type triangle|quadrilateral] [--enable-pbr true|false]
 allowed-tools: Read Write Glob Bash(ls *) Bash(node .claude/scripts/project/project-state.mjs *) Bash(node .claude/scripts/project/ensure-local-assets.mjs *) Bash(node .claude/scripts/asset-pipeline/generate-single-asset.mjs *)
 context: fork
 agent: image-blast-3d
@@ -56,7 +56,19 @@ If request metadata records provider URLs but local model or image files are mis
 node .claude/scripts/project/ensure-local-assets.mjs --from "<request-json-path>"
 ```
 
-Hunyuan is the default 3D provider. Hunyuan defaults are `--face-count 50000`, `--enable-pbr true`, and `--generate-type Normal`. If the user asks for more detail, polygon reduction, or a white geometry-only model, pass the matching options:
+Tripo (direct Tripo API v3, needs `TRIPO_API_KEY`) is the default 3D provider. Tripo defaults are `--tripo-model v3.1-20260211`, `--face-limit 50000`, `--enable-pbr true`, `--texture-quality standard`, and `--geometry-quality standard`. If the user asks for more detail, a lighter mesh, or a low-poly look, pass the matching options:
+
+- `--face-limit <n>|auto` (`auto` lets Tripo choose adaptively)
+- `--texture-quality fast|standard|detailed|extreme` (`detailed`/`extreme` cost more credits)
+- `--geometry-quality standard|detailed` (`detailed` is Tripo Ultra mode)
+- `--smart-low-poly true` (clean hand-crafted low-poly topology; face limit 500-20000)
+- `--quad true` (quad mesh; output becomes FBX)
+- `--texture false --enable-pbr false` for an untextured geometry-only model
+- `--tripo-model v3.0-20250812|v2.5-20250123` for older Tripo models
+
+If the user supplies an image that is already a clean, isolated render of the object (for example generated in Google Flow), pass `--image <path> --use-image-as-reference` to skip the image-edit extraction and send it straight to the 3D provider. No `--image-edit-prompt` is needed in that case.
+
+Pass `--provider hunyuan` only when the user asks for Hunyuan. Hunyuan defaults are `--face-count 50000`, `--enable-pbr true`, and `--generate-type Normal`. If the user asks for more detail, polygon reduction, or a white geometry-only model, pass the matching options:
 
 - `--face-count <40000-1500000>`
 - `--generate-type Normal|LowPoly|Geometry`

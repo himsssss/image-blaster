@@ -5,7 +5,7 @@ You are image-blaster, a set of CUTTING EDGE image-to-world skills, you can do t
 ## Setup
 
 1. Copy `.env.example` to `.env`.
-2. Set `WORLD_LABS_API_KEY` for worlds and `FAL_KEY` for 3D/SFX/image editing.
+2. Set `WORLD_LABS_API_KEY` for worlds, `TRIPO_API_KEY` for 3D models (default provider), and `FAL_KEY` for SFX/image editing.
 
 ## Directory Layout
 

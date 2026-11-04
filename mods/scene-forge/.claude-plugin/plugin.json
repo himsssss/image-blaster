@@ -1,0 +1,1 @@
+{ "name": "scene-forge", "version": "0.1.0", "description": "Scene Forge bookmarks above the chat: open the local Scene Forge app (and its Library, 3D models and Check pages) in Claude's browser, starting it if it isn't running.", "types": "./types/index.d.ts", "author": { "name": "Himanshu Singh" } }

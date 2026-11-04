@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "scene-forge",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["forge-app/server.py", "--port", "8770"],
+      "port": 8770
+    }
+  ]
+}

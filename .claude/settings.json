@@ -16,7 +16,13 @@
       "Bash(bun run dev:*)",
       "Bash(lsof:*)",
       "Bash(mkdir:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Skill(scene-forge)",
+      "Skill(scene-forge-app)",
+      "Skill(scene-forge-views)",
+      "Skill(scene-forge-meshy)",
+      "Bash(python3 .claude/scripts/scene-forge/*)",
+      "Bash(python3 forge-app/server.py*)"
     ]
   },
   "hooks": {
@@ -26,6 +32,14 @@
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/setup-check.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scene-forge-app.sh"
           }
         ]
       }

@@ -17,7 +17,7 @@ env_key_is_set() {
   [ -n "$value" ] || return 1
 
   case "$value" in
-    your_world_labs_key_here|your_fal_key_here|changeme|CHANGE_ME|TODO|todo)
+    your_world_labs_key_here|your_fal_key_here|your_tripo_key_here|changeme|CHANGE_ME|TODO|todo)
       return 1
       ;;
   esac
@@ -49,7 +49,12 @@ if ! env_key_is_set "WORLD_LABS_API_KEY"; then
 fi
 
 if ! env_key_is_set "FAL_KEY"; then
-  print_key_help "FAL_KEY" "3D models, SFX, and image editing" "https://fal.ai/"
+  print_key_help "FAL_KEY" "SFX and image editing (and Hunyuan/Meshy 3D)" "https://fal.ai/"
+  missing_env_key=1
+fi
+
+if ! env_key_is_set "TRIPO_API_KEY"; then
+  print_key_help "TRIPO_API_KEY" "3D models (default provider: Tripo)" "https://platform.tripo3d.ai/"
   missing_env_key=1
 fi
 
