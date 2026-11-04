@@ -1,4 +1,4 @@
-<img width="960" height="540" alt="image-blaster-1" src="https://github.com/user-attachments/assets/d294e420-eb48-4f00-b6a8-13005442d1a8" />
+<img width="960" alt="Scene Forge web app: the Final project page with the Blender render, scores and job feed" src="docs/scene-forge.jpg" />
 
 ## `image-blaster`
 Creates 3D environments, SFX, and meshes from a single image using Claude skills, World Labs, and FAL. 
