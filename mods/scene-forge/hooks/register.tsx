@@ -4,7 +4,6 @@ import type { EngineInterface, Register } from 'claude-code'
 import type { ServerStatus } from '../types'
 
 // Bookmarks above the chat for the local Scene Forge app: the app itself plus four of its pages.
-const APP = '/Users/himanshusingh/image to 3d scene/image-blaster/forge-app'
 const URL_BASE = 'http://localhost:8770'
 const PAGES = [
   { key: 'app', label: 'Scene Forge', hash: '', what: 'Scene Forge' },
@@ -14,6 +13,12 @@ const PAGES = [
   { key: 'final', label: 'Final', hash: '#final', what: 'the Scene Forge final project (Blender file, renders)' },
 ] as const
 type Page = (typeof PAGES)[number]
+
+// The forge-app folder: SCENE_FORGE_DIR if set, else the repo this mod sits in (<repo>/mods/scene-forge -> <repo>/forge-app).
+const parent = (p: string) => p.replace(/[\\/]+[^\\/]+[\\/]*$/, '')
+async function appDir($: EngineInterface) {
+  return (await $.env.get('SCENE_FORGE_DIR')) || `${parent(parent($.plugin.root))}/forge-app`
+}
 
 const status = atom({ plugin: 'scene-forge', key: 'status' } as const, 'unknown' as ServerStatus)
 
@@ -35,10 +40,11 @@ async function open($: EngineInterface, p: Page) {
 
 // Starts the server detached so it outlives this session; a login shell gives the person's PATH (python3 + Pillow).
 async function start($: EngineInterface, p: Page) {
+  const app = await appDir($)
   await update($, status, () => 'starting')
   $.ui.toast('Starting Scene Forge…')
   try {
-    await $.process.run(['/bin/zsh', '-lc', 'cd "$1" && nohup python3 server.py --port 8770 >> server.log 2>&1 &', 'start', APP],
+    await $.process.run(['/bin/zsh', '-lc', 'cd "$1" && nohup python3 server.py --port 8770 >> server.log 2>&1 &', 'start', app],
       { timeoutMs: 10000 })
   } catch {}
   for (let i = 0; i < 20; i++) {
@@ -46,7 +52,7 @@ async function start($: EngineInterface, p: Page) {
     if (await up($)) { await update($, status, () => 'up'); await open($, p); return }
   }
   await update($, status, () => 'down')
-  $.ui.toast(`Scene Forge did not start. See ${APP}/server.log`)
+  $.ui.toast(`Scene Forge did not start. See ${app}/server.log`)
 }
 
 const dot = (s: ServerStatus) => (s === 'up' ? '●' : s === 'down' ? '○' : '◌')

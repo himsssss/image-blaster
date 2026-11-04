@@ -17,7 +17,9 @@ from pathlib import Path
 import bpy
 import numpy as np
 
-FORGE = globals().get("FORGE_DIR", "/Users/himanshusingh/image to 3d scene/image-blaster/worlds/living-room/forge")
+FORGE = globals().get("FORGE_DIR") or os.environ.get("FORGE_DIR")
+if not FORGE:
+    raise RuntimeError('set FORGE_DIR = "<repo>/worlds/<slug>/forge" before exec()')
 BASIS = Path(FORGE) / "loop" / "basis"
 BASIS.mkdir(parents=True, exist_ok=True)
 

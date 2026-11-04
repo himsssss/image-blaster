@@ -9,13 +9,16 @@ or, for `mount: wall|ceiling` objects, onto that plane; the model is then scaled
 projected width matches the bbox width. Everything goes into the "Forge" collection.
 """
 import json
+import os
 import bpy
 import numpy as np
 from mathutils import Vector
 from mathutils.geometry import intersect_line_plane
 
 # set FORGE_DIR before exec() to target another project
-FORGE = globals().get("FORGE_DIR", "/Users/himanshusingh/image to 3d scene/image-blaster/worlds/living-room/forge")
+FORGE = globals().get("FORGE_DIR") or os.environ.get("FORGE_DIR")
+if not FORGE:
+    raise RuntimeError('set FORGE_DIR = "<repo>/worlds/<slug>/forge" before exec()')
 ANALYSIS = json.load(open(FORGE + "/analysis.json"))
 REF_W, REF_H = ANALYSIS["size"]
 

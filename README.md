@@ -58,7 +58,10 @@ photo -> objects -> multi-angle views (Nano Banana via Higgsfield) -> 3D models 
 - Start the app: `python3 forge-app/server.py --port 8770`, then open http://localhost:8770 (or run
   `/scene-forge-app` in Claude Code, which also starts the job watcher).
 - `mods/scene-forge` is a Claude Code mod that adds Scene Forge bookmarks above the chat; load it by adding
-  its absolute path to `CLAUDE_CODE_PLUGIN_DIRS` in the `env` block of `~/.claude/settings.json`.
+  its absolute path to `CLAUDE_CODE_PLUGIN_DIRS` in the `env` block of `~/.claude/settings.json`. It starts
+  the app from the repo's `forge-app/`; set `SCENE_FORGE_DIR` in the same `env` block if the mod lives elsewhere.
+- The Blender scripts need `FORGE_DIR` (the project's `worlds/<slug>/forge`) set as a global before `exec()`,
+  or in the environment.
 - `examples/living-room/` holds the small output files of one run.
 
 ### Examples

@@ -1,4 +1,4 @@
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 
 const SURFACES = ['terminal', 'desktop'] as const
 
@@ -29,5 +29,32 @@ for (const surface of SURFACES) {
     on('ui.render', ($e, e) => { const { Text } = $e.ui.resolve(e); return <Text key="engine">engine band</Text> })
     const ui = await $.ui.mount({ plugin: 'scene-forge', surface, component: 'AbovePrompt', props: { hasSurvey: true, isWorking: false } })
     expect(await ui.find({ key: 'library' })).toBeUndefined()
+  })
+}
+
+// SCENE_FORGE_DIR wins; without it the app is the forge-app folder of the repo holding mods/scene-forge.
+const DIRS = [
+  { name: 'SCENE_FORGE_DIR', env: { SCENE_FORGE_DIR: '/opt/forge-app' }, dir: (a: string) => a === '/opt/forge-app' },
+  { name: 'the repo beside the mod', env: {}, dir: (a: string) => /[\\/]forge-app$/.test(a) && !/[\\/]mods[\\/]/.test(a) },
+]
+
+for (const c of DIRS) {
+  test(`a down server is started from ${c.name}`, async ($, on) => {
+    mock.env(on, c.env)
+    const clock = mock.clock(on)
+    let serving = false
+    const runs: string[][] = []
+    on('session.start', (_, e) => ({ cwd: e.cwd }))
+    on('http.fetch', async () => (serving ? { value: { ok: true, status: 200, headers: {}, body: '[]' } } : { deny: 'connection refused' }) as never)
+    on('process.run', async (_$, e) => { runs.push([...e.argv]); serving = true; return { value: { exitCode: 0, stdout: '', stderr: '' } } as never })
+    on('ui.toast', async () => ({ value: undefined }) as never)
+    on('prompt.submit', async (_$, e) => ({ text: e.text }))
+    await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
+    const ui = await $.ui.mount({ plugin: 'scene-forge', surface: 'desktop', component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false } })
+    const pressed = ui.press({ key: 'app' })
+    await clock.advance(500)
+    await pressed
+    expect(runs.length).toBe(1)
+    expect(runs[0].some(c.dir)).toBe(true)
   })
 }
